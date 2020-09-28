@@ -80,7 +80,6 @@ def step_impl(context):
 
 @then('the file data is returned')
 def step_impl(context):
-    print(context.file_output)
     assert context.file.name == context.file_output[fc.FILE_NAME]
     assert 'Aaron' == context.file_output[fc.RECORDS][0]['name']
     assert '39' == context.file_output[fc.RECORDS][0]['age']
