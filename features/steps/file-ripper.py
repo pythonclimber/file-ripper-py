@@ -1,12 +1,28 @@
 from datetime import datetime
-from typing import IO
+from typing import IO, List
 
 from behave import given, when, then
 
-from file_ripper import FieldDefinition, FileDefinition, FileRipper
+from file_ripper import FieldDefinition, FileDefinition, rip_files, rip_file
 from file_ripper import file_constants as fc
 
 field_names = ['name', 'age', 'dob']
+
+
+def assert_file_data(file_name: str, output_file_name: str, file_records: List[dict]):
+    assert file_name == output_file_name
+    assert 'Aaron' == file_records[0]['name']
+    assert '39' == file_records[0]['age']
+    assert '09/04/1980' == file_records[0]['dob']
+    assert 'Gene' == file_records[1]['name']
+    assert '61' == file_records[1]['age']
+    assert '01/15/1958' == file_records[1]['dob']
+    assert 'Xander' == file_records[2]['name']
+    assert '5' == file_records[2]['age']
+    assert '11/22/2014' == file_records[2]['dob']
+    assert 'Mason' == file_records[3]['name']
+    assert '12' == file_records[3]['age']
+    assert '04/13/2007' == file_records[3]['dob']
 
 
 def write_xml_record(file, name, age, dob):
@@ -73,23 +89,30 @@ def step_impl(context):
 
 @when('the file is ripped')
 def step_impl(context):
-    file_ripper = FileRipper()
+    try:
+        with open(context.file.name, 'r') as file:
+            context.output_file_name, context.file_records = rip_file(file, context.file_definition)
+    except Exception as ex:
+        context.error = ex
+
+
+@when('the files are ripped')
+def step_impl(context):
     with open(context.file.name, 'r') as file:
-        context.file_output = file_ripper.rip_file(file, context.file_definition)
+        context.file_output_list = rip_files([file], context.file_definition)
 
 
 @then('the file data is returned')
 def step_impl(context):
-    assert context.file.name == context.file_output[fc.FILE_NAME]
-    assert 'Aaron' == context.file_output[fc.RECORDS][0]['name']
-    assert '39' == context.file_output[fc.RECORDS][0]['age']
-    assert '09/04/1980' == context.file_output[fc.RECORDS][0]['dob']
-    assert 'Gene' == context.file_output[fc.RECORDS][1]['name']
-    assert '61' == context.file_output[fc.RECORDS][1]['age']
-    assert '01/15/1958' == context.file_output[fc.RECORDS][1]['dob']
-    assert 'Xander' == context.file_output[fc.RECORDS][2]['name']
-    assert '5' == context.file_output[fc.RECORDS][2]['age']
-    assert '11/22/2014' == context.file_output[fc.RECORDS][2]['dob']
-    assert 'Mason' == context.file_output[fc.RECORDS][3]['name']
-    assert '12' == context.file_output[fc.RECORDS][3]['age']
-    assert '04/13/2007' == context.file_output[fc.RECORDS][3]['dob']
+    assert_file_data(context.file.name, context.output_file_name, context.file_records)
+
+
+@then('data is returned for all files')
+def step_impl(context):
+    [assert_file_data(context.file.name, output_file_name, file_records)
+     for output_file_name, file_records in context.file_output_list]
+
+
+@then('a {error_name} occurs')
+def step_impl(context, error_name):
+    assert error_name == context.error.__class__.__name__

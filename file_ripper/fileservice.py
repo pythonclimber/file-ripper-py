@@ -1,12 +1,12 @@
-from typing import IO
+from typing import IO, Tuple
 from xml.etree.ElementTree import fromstring, parse
 
 import file_ripper.fileconstants as fc
 
 
 class FileService:
-    def process(self, file: IO):
-        return {fc.FILE_NAME: file.name, fc.RECORDS: self.process_file_records(file.readlines())}
+    def process(self, file: IO) -> Tuple[str, dict]:
+        return file.name, self.process_file_records(file.readlines())
 
     def process_file_records(self, lines):
         raise NotImplementedError('Please use a valid implementation of FileService to read files')

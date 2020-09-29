@@ -53,14 +53,13 @@ class ExportDefinition:
 class FileDefinition:
     file_type: str
     field_definitions: List[FieldDefinition]
-    file_description: str = field(default='')
-    export_definition: ExportDefinition = field(default=None)
-    delimiter: str = field(default='')
-    completed_directory: str = field(default='')
-    record_element_name: str = field(default='')
-    input_directory: str = field(default='')
     has_header: bool = field(default=False)
-    file_mask: str = field(default='')
+    delimiter: str = field(default='')
+    record_element_name: str = field(default='')
+    # input_directory: str = field(default='')
+    # completed_directory: str = field(default='')
+    # export_definition: ExportDefinition = field(default=None)
+    # file_mask: str = field(default='')
 
     @classmethod
     def create_from_json(cls, json_data: dict):

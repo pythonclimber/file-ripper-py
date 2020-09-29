@@ -1,20 +1,18 @@
 import os
 import unittest
-from unittest.mock import Mock
 
 import file_ripper.fileconstants as fc
 from file_ripper.filedefinition import FileDefinition, FieldDefinition
-from file_ripper.fileripper import FileRipper
 from file_ripper.fileservice import XmlFileService, DelimitedFileService, FixedFileService, FileService
 
 
 class FileDefinitionTests(unittest.TestCase):
     def setUp(self):
         self.json_data = {
-            fc.FILE_MASK: 'Valid-*.csv',
+            # fc.FILE_MASK: 'Valid-*.csv',
             fc.FILE_TYPE: fc.DELIMITED,
             fc.DELIMITER: ',',
-            fc.INPUT_DIRECTORY: os.getcwd(),
+            # fc.INPUT_DIRECTORY: os.getcwd(),
             fc.FIELD_DEFINITIONS: [
                 {
                     fc.FIELD_NAME: 'name',
@@ -22,12 +20,12 @@ class FileDefinitionTests(unittest.TestCase):
                     fc.FIELD_LENGTH: 12
                 }
             ],
-            fc.EXPORT_DEFINITION: {
-                fc.EXPORT_TYPE: fc.API_EXPORT,
-                fc.API_URL: 'https://ohgnarly3-staging.herokuapp.com/person',
-                fc.DB_CONNECTION_STRING: 'mongodb://gnarly_user:Gnarly234@ds.mlab.com/gnarly_test',
-                fc.OUTPUT_FILE_PATH: '/users/asmitty/workspace/file.txt'
-            }
+            # fc.EXPORT_DEFINITION: {
+            #     fc.EXPORT_TYPE: fc.API_EXPORT,
+            #     fc.API_URL: 'https://ohgnarly3-staging.herokuapp.com/person',
+            #     fc.DB_CONNECTION_STRING: 'mongodb://gnarly_user:Gnarly234@ds.mlab.com/gnarly_test',
+            #     fc.OUTPUT_FILE_PATH: '/users/asmitty/workspace/file.txt'
+            # }
         }
 
     def test_create_file_definitions(self):
@@ -226,12 +224,12 @@ class CreateFileServiceTests(unittest.TestCase):
 
     def setUp(self):
         self.file_data = {
-            fc.FILE_MASK: "",
-            fc.INPUT_DIRECTORY: '',
-            fc.EXPORT_DEFINITION: {
-                fc.EXPORT_TYPE: fc.API_EXPORT,
-                fc.API_URL: 'http://www.google.com'
-            },
+            # fc.FILE_MASK: "",
+            # fc.INPUT_DIRECTORY: '',
+            # fc.EXPORT_DEFINITION: {
+            #     fc.EXPORT_TYPE: fc.API_EXPORT,
+            #     fc.API_URL: 'http://www.google.com'
+            # },
             fc.FIELD_DEFINITIONS: [
                 {
                     fc.FIELD_NAME: "Name"
@@ -280,13 +278,13 @@ class FileServiceTests(unittest.TestCase):
     def setUp(self):
         self.file_name = None
         self.file_data = {
-            fc.FILE_MASK: "Valid-*.txt",
+            # fc.FILE_MASK: "Valid-*.txt",
             fc.HAS_HEADER: True,
-            fc.INPUT_DIRECTORY: '',
-            fc.EXPORT_DEFINITION: {
-                fc.EXPORT_TYPE: fc.API_EXPORT,
-                fc.API_URL: 'http://www.google.com'
-            },
+            # fc.INPUT_DIRECTORY: '',
+            # fc.EXPORT_DEFINITION: {
+            #     fc.EXPORT_TYPE: fc.API_EXPORT,
+            #     fc.API_URL: 'http://www.google.com'
+            # },
             fc.FIELD_DEFINITIONS: [
                 {
                     fc.FIELD_NAME: "name",
@@ -306,24 +304,22 @@ class FileServiceTests(unittest.TestCase):
             ]
         }
 
-    def assert_valid_file_output(self, file_output, file_name):
-        self.assertTrue(fc.FILE_NAME in file_output)
-        self.assertEqual(file_name, file_output[fc.FILE_NAME])
-        self.assertTrue(fc.RECORDS in file_output)
-        self.assertTrue(isinstance(file_output[fc.RECORDS], list))
-        self.assertEqual(4, len(file_output[fc.RECORDS]))
-        self.assert_valid_records(file_output)
+    def assert_valid_file_output(self, output_file_name, file_records):
+        self.assertEqual(self.file_name, output_file_name)
+        self.assertTrue(isinstance(file_records, list))
+        self.assertEqual(4, len(file_records))
+        self.assert_valid_records(file_records)
 
-    def assert_valid_records(self, file_output):
-        self.assertEqual('Aaron', file_output[fc.RECORDS][0]['name'])
-        self.assertEqual('39', file_output[fc.RECORDS][0]['age'])
-        self.assertEqual('09/04/1980', file_output[fc.RECORDS][0]['dob'])
-        self.assertEqual('Gene', file_output[fc.RECORDS][1]['name'])
-        self.assertEqual('61', file_output[fc.RECORDS][1]['age'])
-        self.assertEqual('01/15/1958', file_output[fc.RECORDS][1]['dob'])
-        self.assertEqual('Xander', file_output[fc.RECORDS][2]['name'])
-        self.assertEqual('4', file_output[fc.RECORDS][2]['age'])
-        self.assertEqual('11/22/2014', file_output[fc.RECORDS][2]['dob'])
+    def assert_valid_records(self, file_records):
+        self.assertEqual('Aaron', file_records[0]['name'])
+        self.assertEqual('39', file_records[0]['age'])
+        self.assertEqual('09/04/1980', file_records[0]['dob'])
+        self.assertEqual('Gene', file_records[1]['name'])
+        self.assertEqual('61', file_records[1]['age'])
+        self.assertEqual('01/15/1958', file_records[1]['dob'])
+        self.assertEqual('Xander', file_records[2]['name'])
+        self.assertEqual('4', file_records[2]['age'])
+        self.assertEqual('11/22/2014', file_records[2]['dob'])
 
     def test_process_records_not_implemented(self):
         file_service = FileService()
@@ -354,8 +350,8 @@ class DelimitedFileServiceTests(FileServiceTests):
 
     def test_process_given_comma_delimiter(self):
         with open(self.file_name, 'r') as file:
-            file_output = self.file_service.process(file)
-            self.assert_valid_file_output(file_output, self.file_name)
+            output_file_name, file_records = self.file_service.process(file)
+            self.assert_valid_file_output(output_file_name, file_records)
 
     def test_process_given_invalid_file(self):
         with open(self.file_name, 'r') as file:
@@ -379,8 +375,8 @@ class FixedFileServiceTests(FileServiceTests):
 
     def test_process(self):
         with open(self.file_name, 'r') as file:
-            file_output = self.file_service.process(file)
-            self.assert_valid_file_output(file_output, self.file_name)
+            output_file_name, file_records = self.file_service.process(file)
+            self.assert_valid_file_output(output_file_name, file_records)
 
     def test_process_invalid_file_records_too_short(self):
         with open(self.file_name, 'r') as file:
@@ -419,8 +415,8 @@ class XmlFileServiceTests(FileServiceTests):
 
     def test_process(self):
         with open(self.file_name, 'r') as file:
-            file_output = self.file_service.process(file)
-            self.assert_valid_file_output(file_output, self.file_name)
+            output_file_name, file_records = self.file_service.process(file)
+            self.assert_valid_file_output(output_file_name, file_records)
 
     def test_process_given_invalid_file_missing_attribute(self):
         with open(self.file_name, 'r') as file:
@@ -435,61 +431,6 @@ class DatabaseExporterTests(unittest.TestCase):
 
     def test_export_data(self):
         pass
-
-
-class FileRipper2Tests(FileServiceTests):
-    def setUp(self) -> None:
-        super(FileRipper2Tests, self).setUp()
-
-        self.file_service = FileService()
-        file_service_factory = Mock(return_value=self.file_service)
-
-        self.expected = {}
-        self.file_service.process = Mock(return_value=self.expected)
-
-        self.file_data[fc.FILE_TYPE] = fc.FIXED
-        self.file_ripper = FileRipper(file_service_factory)
-        self.file_definition = FileDefinition.create_from_json(self.file_data)
-
-    def test_rip_file_returns_file_output(self):
-        file_names = self.create_files()
-        with open(file_names[0], 'r') as file:
-            actual = self.file_ripper.rip_file(file, self.file_definition)
-        self.assertIs(self.expected, actual)
-        self.delete_files()
-
-    def test_rip_file_not_a_file(self):
-        self.file_service.process = Mock(side_effect=AttributeError)
-        self.assertRaises(AttributeError, self.file_ripper.rip_file, {}, self.file_definition)
-
-    def test_rip_files_returns_file_output_list(self):
-        file_count = 2
-        file_names = self.create_files(file_count)
-        for file_name in file_names:
-            with open(file_name, 'r') as file:
-                files = [file for _ in range(0, 2)]
-                actual = self.file_ripper.rip_files(files, self.file_definition)
-                self.assertEqual(len(files), len(actual))
-                [self.assertIs(self.expected, a) for a in actual]
-        self.delete_files(file_count)
-
-    def test_rip_files_not_files(self):
-        self.file_service.process = Mock(side_effect=AttributeError)
-        self.assertRaises(AttributeError, self.file_ripper.rip_files, [{}, {}], self.file_definition)
-
-    @staticmethod
-    def create_files(total_files=1):
-        file_names = []
-        for i in range(0, total_files):
-            with open(f'Valid-{i}.txt', 'w') as file:
-                file_names.append(file.name)
-                file.write(f'hello from {i}')
-        return file_names
-
-    @staticmethod
-    def delete_files(total_files=1):
-        for i in range(0, total_files):
-            os.remove(f'Valid-{i}.txt')
 
 
 if __name__ == '__main__':
