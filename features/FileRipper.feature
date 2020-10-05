@@ -26,6 +26,23 @@ Feature: File Ripper Business Features
     When the files are ripped
     Then data is returned for all files
 
+  Scenario: File ripper looks up files and processes them
+    Given files stored on file system
+    And a fixed file definition
+    And file definition has input directory, file mask
+    When the files are found and ripped
+    Then data is returned for all files
+    And files are still in input directory
+
+  Scenario: File ripper looks up files, processes them, and moves them to completed
+    Given files stored on file system
+    And a fixed file definition
+    And file definition has input directory, file mask
+    And file definition has completed directory
+    When the files are found and ripped
+    Then data is returned for all files
+    And files are in completed directory
+
   Scenario: A delimited file and a fixed file definition
     Given a file whose fields are separated by a ","
     And a fixed file definition

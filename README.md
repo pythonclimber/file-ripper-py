@@ -22,6 +22,9 @@ FileDefinition fields:
 - has_header - bool - optional - whether the file has a header row to skip or not
 - delimiter - str - required for DELIMITED files - character or string of characters that delimit fields
 - record_element_name - str - required for xml files - name of the xml node that represents a full record
+- file_mask - str - required for finding files - a glob pattern to be used in matching file names for look up
+- input_directory - str - required for finding files - the absolute path where the files reside
+- completed_directory - str - optional - the absolute path to move files to once they are ripped
 
 
 ```python
@@ -93,5 +96,29 @@ field_definitions = [
     
 file_definition = FileDefinition(fc.DELIMITED, field_definitions)
 with open('path/to/file.txt', 'r') as file:
-    file_results: List[Tuple[str, dict]] = rip_files([file], file_definition) 
+    file_results: List[Tuple[str, list]] = rip_files([file], file_definition) 
 ```
+
+## Finding And Ripping Files
+This is a new feature for version 1.1.0 of file-ripper.  It now supports finding and ripping your files based on
+a provided file mask (using glob pattern matching) and an input directory.  An optional completed directory can be specified
+if you wish for the file to be moved after they are ripped.
+
+In the following example, any file in /usr/bin matching whose name matches the glob pattern 
+Valid-*.txt will be ripped and have its data added to the result set. Those files will then be moved to 
+/usr/bin/completed so that they will not be ripped if that directory is processed a second time
+
+```python
+from file_ripper import find_and_rip_files, FileDefinition, FieldDefinition, file_constants as fc
+from typing import List, Tuple
+
+field_definitions = [
+    FieldDefinition('name'),
+    FieldDefinition('age'),
+    FieldDefinition('dob')
+]
+    
+file_definition = FileDefinition(fc.DELIMITED, field_definitions, file_mask='Valid-*.txt', input_directory='/usr/bin',
+                                 completed_directory='/usr/bin/completed')
+file_results: List[Tuple[str, dict]] = find_and_rip_files(file_definition)
+``` 

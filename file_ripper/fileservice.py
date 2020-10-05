@@ -1,3 +1,4 @@
+import os
 from typing import IO, Tuple
 from xml.etree.ElementTree import fromstring, parse
 
@@ -5,6 +6,9 @@ import file_ripper.fileconstants as fc
 
 
 class FileService:
+    def __init__(self, file_definition):
+        self.file_definition = file_definition
+
     def process(self, file: IO) -> Tuple[str, dict]:
         return file.name, self.process_file_records(file.readlines())
 
@@ -25,7 +29,7 @@ class FileService:
 
 class XmlFileService(FileService):
     def __init__(self, file_definition):
-        self.file_definition = file_definition
+        super().__init__(file_definition)
 
     def process_file_records(self, lines):
         tree = fromstring(''.join(lines))
@@ -42,7 +46,7 @@ class XmlFileService(FileService):
 
 class DelimitedFileService(FileService):
     def __init__(self, file_definition):
-        self.file_definition = file_definition
+        super().__init__(file_definition)
 
     def process_file_records(self, lines):
         records = []
@@ -69,7 +73,7 @@ class DelimitedFileService(FileService):
 
 class FixedFileService(FileService):
     def __init__(self, file_definition):
-        self.file_definition = file_definition
+        super().__init__(file_definition)
 
     def process_file_records(self, lines):
         records = []

@@ -1,4 +1,5 @@
 import os
+import shutil
 
 
 def before_scenario(context, scenario):
@@ -8,7 +9,6 @@ def before_scenario(context, scenario):
 
 def after_scenario(context, scenario):
     try:
-        os.remove(context.file.name)
-        os.rmdir('features/files')
+        shutil.rmtree('features/files')
     except Exception as ex:
         print(ex)
