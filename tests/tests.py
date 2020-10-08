@@ -97,126 +97,102 @@ class FileDefinitionTests(unittest.TestCase):
                          file_definition.field_definitions[0].field_name)
 
 
-# class ExportDefinitionTests(FileDefinitionTests):
-#     def setUp(self):
-#         super(ExportDefinitionTests, self).setUp()
-#
-#     def test_invalid_export_definition_missing_export_type(self):
-#         del (self.json_data[fc.EXPORT_DEFINITION][fc.EXPORT_TYPE])
-#         self.assertRaises(ValueError, FileDefinition.create_from_json, self.json_data)
-#
-#     def test_invalid_export_definition_api_export_missing_api_url(self):
-#         self.json_data[fc.FILE_DEFINITIONS][0][fc.EXPORT_DEFINITION][fc.EXPORT_TYPE] = fc.API_EXPORT
-#         del (self.json_data[fc.FILE_DEFINITIONS][0][fc.EXPORT_DEFINITION][fc.API_URL])
-#         self.assertRaises(ValueError, FileDefinition.create_from_json, self.json_data)
-#
-#     def test_invalid_export_definition_database_export_missing_db_connection_string(self):
-#         self.json_data[fc.FILE_DEFINITIONS][0][fc.EXPORT_DEFINITION][fc.EXPORT_TYPE] = fc.DATABASE_EXPORT
-#         del (self.json_data[fc.FILE_DEFINITIONS][0][fc.EXPORT_DEFINITION][fc.DB_CONNECTION_STRING])
-#         self.assertRaises(ValueError, FileDefinition.create_from_json, self.json_data)
-#
-#     def test_invalid_export_definition_file_export_missing_output_file_path(self):
-#         self.json_data[fc.FILE_DEFINITIONS][0][fc.EXPORT_DEFINITION][fc.EXPORT_TYPE] = fc.FILE_EXPORT
-#         del (self.json_data[fc.FILE_DEFINITIONS][0][fc.EXPORT_DEFINITION][fc.OUTPUT_FILE_PATH])
-#         self.assertRaises(ValueError, FileDefinition.create_from_json, self.json_data)
+class FileConstantsTests(unittest.TestCase):
+    def test_file_type(self):
+        self.assertEqual(fc.FILE_TYPE, 'file_type')
 
+    def test_file_mask(self):
+        self.assertEqual(fc.FILE_MASK, 'file_mask')
 
-# class FileConstantsTests(unittest.TestCase):
-#     def test_file_type(self):
-#         self.assertEqual(fc.FILE_TYPE, 'file_type')
-#
-#     def test_file_mask(self):
-#         self.assertEqual(fc.FILE_MASK, 'file_mask')
-#
-#     def test_delimited(self):
-#         self.assertEqual(fc.DELIMITED, 'DELIMITED')
-#
-#     def test_fixed(self):
-#         self.assertEqual(fc.FIXED, 'FIXED')
-#
-#     def test_xml(self):
-#         self.assertEqual(fc.XML, 'XML')
-#
-#     def test_delimiter(self):
-#         self.assertEqual(fc.DELIMITER, 'delimiter')
-#
-#     def test_created_at(self):
-#         self.assertEqual(fc.CREATED_AT, 'created_at')
-#
-#     def test_created_by(self):
-#         self.assertEqual(fc.CREATED_BY, 'created_by')
-#
-#     def test_has_header(self):
-#         self.assertEqual(fc.HAS_HEADER, 'has_header')
-#
-#     def test_field_definitions(self):
-#         self.assertEqual(fc.FIELD_DEFINITIONS, 'field_definitions')
-#
-#     def test_file_definitions(self):
-#         self.assertEqual(fc.FILE_DEFINITIONS, 'file_definitions')
-#
-#     def test_field_name(self):
-#         self.assertEqual(fc.FIELD_NAME, 'field_name')
-#
-#     def test_file_name(self):
-#         self.assertEqual(fc.FILE_NAME, 'file_name')
-#
-#     def test_records(self):
-#         self.assertEqual(fc.RECORDS, 'records')
-#
-#     def test_start_position(self):
-#         self.assertEqual(fc.START_POSITION, 'start_position')
-#
-#     def test_field_length(self):
-#         self.assertEqual(fc.FIELD_LENGTH, 'field_length')
-#
-#     def test_record_element_name(self):
-#         self.assertEqual(fc.RECORD_ELEMENT_NAME, 'record_element_name')
-#
-#     def test_xml_node_name(self):
-#         self.assertEqual(fc.XML_NODE_NAME, 'xml_node_name')
-#
-#     def test_input_directory(self):
-#         self.assertEqual(fc.INPUT_DIRECTORY, 'input_directory')
-#
-#     def test_data_url(self):
-#         self.assertEqual(fc.API_URL, 'api_url')
-#
-#     def test_completed_directory(self):
-#         self.assertEqual(fc.COMPLETED_DIRECTORY, 'completed_directory')
-#
-#     def test_output_mode(self):
-#         self.assertEqual(fc.EXPORT_TYPE, 'export_type')
-#
-#     def test_api_export(self):
-#         self.assertEqual(fc.API_EXPORT, 'API')
-#
-#     def test_file_export(self):
-#         self.assertEqual(fc.FILE_EXPORT, 'FILE')
-#
-#     def test_database_export(self):
-#         self.assertEqual(fc.DATABASE_EXPORT, 'DATABASE')
-#
-#     def test_export_definition(self):
-#         self.assertEqual(fc.EXPORT_DEFINITION, 'export_definition')
-#
-#     def test_file_description(self):
-#         self.assertEqual(fc.FILE_DESCRIPTION, 'file_description')
-#
-#     def test_db_connection_string(self):
-#         self.assertEqual(fc.DB_CONNECTION_STRING, 'db_connection_string')
-#
-#     def test_output_file_path(self):
-#         self.assertEqual(fc.OUTPUT_FILE_PATH, 'output_file_path')
-#
-#     def test_http_headers(self):
-#         self.assertEqual(fc.HTTP_HEADERS, 'http_headers')
-#
-#     def test_collection_name(self):
-#         self.assertEqual(fc.COLLECTION_NAME, 'collection_name')
-#
-#     def test_database_name(self):
-#         self.assertEqual(fc.DATABASE_NAME, 'database_name')
+    def test_delimited(self):
+        self.assertEqual(fc.DELIMITED, 'DELIMITED')
+
+    def test_fixed(self):
+        self.assertEqual(fc.FIXED, 'FIXED')
+
+    def test_xml(self):
+        self.assertEqual(fc.XML, 'XML')
+
+    def test_delimiter(self):
+        self.assertEqual(fc.DELIMITER, 'delimiter')
+
+    # def test_created_at(self):
+    #     self.assertEqual(fc.CREATED_AT, 'created_at')
+
+    # def test_created_by(self):
+    #     self.assertEqual(fc.CREATED_BY, 'created_by')
+
+    def test_has_header(self):
+        self.assertEqual(fc.HAS_HEADER, 'has_header')
+
+    def test_field_definitions(self):
+        self.assertEqual(fc.FIELD_DEFINITIONS, 'field_definitions')
+
+    # def test_file_definitions(self):
+    #     self.assertEqual(fc.FILE_DEFINITIONS, 'file_definitions')
+
+    def test_field_name(self):
+        self.assertEqual(fc.FIELD_NAME, 'field_name')
+
+    # def test_file_name(self):
+    #     self.assertEqual(fc.FILE_NAME, 'file_name')
+
+    # def test_records(self):
+    #     self.assertEqual(fc.RECORDS, 'records')
+
+    def test_start_position(self):
+        self.assertEqual(fc.START_POSITION, 'start_position')
+
+    def test_field_length(self):
+        self.assertEqual(fc.FIELD_LENGTH, 'field_length')
+
+    def test_record_element_name(self):
+        self.assertEqual(fc.RECORD_ELEMENT_NAME, 'record_element_name')
+
+    def test_xml_node_name(self):
+        self.assertEqual(fc.XML_NODE_NAME, 'xml_node_name')
+
+    def test_input_directory(self):
+        self.assertEqual(fc.INPUT_DIRECTORY, 'input_directory')
+
+    # def test_data_url(self):
+    #     self.assertEqual(fc.API_URL, 'api_url')
+
+    def test_completed_directory(self):
+        self.assertEqual(fc.COMPLETED_DIRECTORY, 'completed_directory')
+
+    # def test_output_mode(self):
+    #     self.assertEqual(fc.EXPORT_TYPE, 'export_type')
+
+    # def test_api_export(self):
+    #     self.assertEqual(fc.API_EXPORT, 'API')
+
+    # def test_file_export(self):
+    #     self.assertEqual(fc.FILE_EXPORT, 'FILE')
+
+    # def test_database_export(self):
+    #     self.assertEqual(fc.DATABASE_EXPORT, 'DATABASE')
+
+    # def test_export_definition(self):
+    #     self.assertEqual(fc.EXPORT_DEFINITION, 'export_definition')
+
+    # def test_file_description(self):
+    #     self.assertEqual(fc.FILE_DESCRIPTION, 'file_description')
+
+    # def test_db_connection_string(self):
+    #     self.assertEqual(fc.DB_CONNECTION_STRING, 'db_connection_string')
+
+    # def test_output_file_path(self):
+    #     self.assertEqual(fc.OUTPUT_FILE_PATH, 'output_file_path')
+
+    # def test_http_headers(self):
+    #     self.assertEqual(fc.HTTP_HEADERS, 'http_headers')
+
+    # def test_collection_name(self):
+    #     self.assertEqual(fc.COLLECTION_NAME, 'collection_name')
+
+    # def test_database_name(self):
+    #     self.assertEqual(fc.DATABASE_NAME, 'database_name')
 
 
 class CreateFileServiceTests(unittest.TestCase):
@@ -350,8 +326,8 @@ class DelimitedFileServiceTests(FileServiceTests):
 
     def test_process_given_comma_delimiter(self):
         with open(self.file_name, 'r') as file:
-            output_file_name, file_records = self.file_service.process(file)
-            self.assert_valid_file_output(output_file_name, file_records)
+            file_instance = self.file_service.process(file)
+            self.assert_valid_file_output(file_instance.file_name, file_instance.file_rows)
 
     def test_process_given_invalid_file(self):
         with open(self.file_name, 'r') as file:
@@ -375,8 +351,8 @@ class FixedFileServiceTests(FileServiceTests):
 
     def test_process(self):
         with open(self.file_name, 'r') as file:
-            output_file_name, file_records = self.file_service.process(file)
-            self.assert_valid_file_output(output_file_name, file_records)
+            file_instance = self.file_service.process(file)
+            self.assert_valid_file_output(file_instance.file_name, file_instance.file_rows)
 
     def test_process_invalid_file_records_too_short(self):
         with open(self.file_name, 'r') as file:
@@ -415,8 +391,8 @@ class XmlFileServiceTests(FileServiceTests):
 
     def test_process(self):
         with open(self.file_name, 'r') as file:
-            output_file_name, file_records = self.file_service.process(file)
-            self.assert_valid_file_output(output_file_name, file_records)
+            file_instance = self.file_service.process(file)
+            self.assert_valid_file_output(file_instance.file_name, file_instance.file_rows)
 
     def test_process_given_invalid_file_missing_attribute(self):
         with open(self.file_name, 'r') as file:

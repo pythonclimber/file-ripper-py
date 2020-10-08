@@ -1,12 +1,13 @@
 import os
 import os.path
 from datetime import datetime
-from typing import IO, List, Dict, Tuple
+from typing import IO, List, Dict
 
 from behave import given, when, then
 
 from file_ripper import FieldDefinition, FileDefinition, rip_files, rip_file
 from file_ripper import file_constants as fc
+from file_ripper.fileinstance import FileInstance
 from file_ripper.fileripper import find_and_rip_files
 
 field_names = ['name', 'age', 'dob']
@@ -27,8 +28,9 @@ def assert_file_records(file_records: List[Dict[str, str]]):
     assert '04/13/2007' == file_records[3]['dob']
 
 
-def assert_file_from_list(file_name: str,  file_output_list: List[Tuple[str, list]]):
-    output_file_name, file_records = next(x for x in file_output_list if x[0].endswith(file_name))
+def assert_file_from_list(file_name: str,  file_output_list: List[FileInstance]):
+    file_instance = next(x for x in file_output_list if x.file_name.endswith(file_name))
+    file_records = file_instance.file_rows
     assert_file_records(file_records)
 
 
@@ -118,12 +120,13 @@ def step_impl(context):
     context.file_definition.completed_directory = f'{os.getcwd()}/features/files/completed'
 
 
-
 @when('the file is ripped')
 def step_impl(context):
     try:
         with open(context.file.name, 'r') as file:
-            context.output_file_name, context.file_records = rip_file(file, context.file_definition)
+            file_instance = rip_file(file, context.file_definition)
+            context.output_file_name = file_instance.file_name
+            context.file_records = file_instance.file_rows
     except Exception as ex:
         context.error = ex
 
