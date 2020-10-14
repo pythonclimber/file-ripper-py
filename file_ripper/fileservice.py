@@ -3,14 +3,16 @@ from typing import IO, Tuple
 from xml.etree.ElementTree import fromstring, parse
 
 import file_ripper.fileconstants as fc
+from file_ripper.fileinstance import FileInstance, FileRow
 
 
 class FileService:
     def __init__(self, file_definition):
         self.file_definition = file_definition
 
-    def process(self, file: IO) -> Tuple[str, dict]:
-        return file.name, self.process_file_records(file.readlines())
+    def process(self, file: IO) -> FileInstance:
+        records = self.process_file_records(file.readlines())
+        return FileInstance(file.name, records)
 
     def process_file_records(self, lines):
         raise NotImplementedError('Please use a valid implementation of FileService to read files')
@@ -34,14 +36,14 @@ class XmlFileService(FileService):
     def process_file_records(self, lines):
         tree = fromstring(''.join(lines))
 
-        records = []
+        file_rows = []
         for item in tree.findall(f'./{self.file_definition.record_element_name}'):
             record = {}
             for field_def in self.file_definition.field_definitions:
                 record[field_def.field_name] = item.find(f'{field_def.field_name}').text
-            records.append(record)
+            file_rows.append(FileRow(record))
 
-        return records
+        return file_rows
 
 
 class DelimitedFileService(FileService):
@@ -49,16 +51,16 @@ class DelimitedFileService(FileService):
         super().__init__(file_definition)
 
     def process_file_records(self, lines):
-        records = []
+        file_rows = []
         if self.file_definition.has_header:
             lines.pop(0)
 
         for line in lines:
-            records.append(self.process_line_fields(line))
+            file_rows.append(self.process_line_fields(line))
 
-        return records
+        return file_rows
 
-    def process_line_fields(self, line):
+    def process_line_fields(self, line) -> FileRow:
         fields = [field.rstrip() for field in line.split(self.file_definition.delimiter)]
         record = {}
 
@@ -68,7 +70,7 @@ class DelimitedFileService(FileService):
 
         for i in range(0, field_count):
             record[self.file_definition.field_definitions[i].field_name] = fields[i]
-        return record
+        return FileRow(record)
 
 
 class FixedFileService(FileService):
@@ -85,11 +87,11 @@ class FixedFileService(FileService):
 
         return records
 
-    def process_line_fields(self, line):
+    def process_line_fields(self, line) -> FileRow:
         record = {}
         for field_def in self.file_definition.field_definitions:
             end_position = field_def.start_position + field_def.field_length
             if end_position > len(line.rstrip()):
                 raise IndexError(f'field {field_def.field_name} extends past the end of line')
             record[field_def.field_name] = line[field_def.start_position:end_position].rstrip()
-        return record
+        return FileRow(record)

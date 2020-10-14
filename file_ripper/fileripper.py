@@ -3,6 +3,7 @@ import os
 from typing import IO, List, Tuple
 
 from file_ripper.filedefinition import FileDefinition
+from file_ripper.fileinstance import FileInstance
 from file_ripper.fileservice import FileService
 
 
@@ -23,16 +24,16 @@ def move_file_if_needed(file_name: str, file_definition: FileDefinition):
                   f'{file_definition.completed_directory}/{os.path.split(file_name)[-1]}')
 
 
-def rip_file(file: IO, file_definition: FileDefinition) -> Tuple[str, list]:
+def rip_file(file: IO, file_definition: FileDefinition) -> FileInstance:
     file_service = FileService.create_file_service(file_definition)
     return file_service.process(file)
 
 
-def rip_files(files: List[IO], file_definition: FileDefinition) -> List[Tuple[str, list]]:
+def rip_files(files: List[IO], file_definition: FileDefinition) -> List[FileInstance]:
     return [rip_file(f, file_definition) for f in files]
 
 
-def find_and_rip_files(file_definition: FileDefinition) -> List[Tuple[str, list]]:
+def find_and_rip_files(file_definition: FileDefinition) -> List[FileInstance]:
     validate_file_definition(file_definition)
     file_output_list = []
 
