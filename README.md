@@ -4,7 +4,7 @@ A small lightweight library to parse your flat files and deliver the data inside
 
 ## Install
 
-file-ripper is available on PyPI.
+file-ripper is available for download on PyPI.
 
 ## FileDefinition and FieldDefinition
 
@@ -24,8 +24,7 @@ FileDefinition fields:
 - record_element_name - str - required for xml files - name of the xml node that represents a full record
 - file_mask - str - required for finding files - a glob pattern to be used in matching file names for look up
 - input_directory - str - required for finding files - the absolute path where the files reside
-- completed_directory - str - optional - the absolute path to move files to once they are ripped
-
+- completed_directory - str - optional - the absolute path to move files to once they are ripped 
 
 ```python
 from file_ripper import FieldDefinition, FileDefinition, file_constants as fc
@@ -33,9 +32,9 @@ from file_ripper import FieldDefinition, FileDefinition, file_constants as fc
 
 def build_delimited_file_definition():
     field_definitions = [
-        FieldDefinition('name'),
-        FieldDefinition('age'),
-        FieldDefinition('dob')
+        FieldDefinition('name', fc.DELIMITED),
+        FieldDefinition('age', fc.DELIMITED),
+        FieldDefinition('dob', fc.DELIMITED)
     ]
     
     return FileDefinition(fc.DELIMITED, field_definitions)
@@ -43,9 +42,9 @@ def build_delimited_file_definition():
 
 def build_fixed_file_definition():
     field_definitions = [
-        FieldDefinition('name', start_position=0, field_length=20),
-        FieldDefinition('age', start_position=20, field_length=5),
-        FieldDefinition('dob', start_position=25, field_length=10)
+        FieldDefinition('name', fc.FIXED, start_position=0, field_length=20),
+        FieldDefinition('age', fc.FIXED, start_position=20, field_length=5),
+        FieldDefinition('dob', fc.FIXED, start_position=25, field_length=10)
     ]
     
     return FileDefinition(fc.FIXED, field_definitions)
@@ -53,9 +52,9 @@ def build_fixed_file_definition():
 
 def build_xml_file_definition():
     field_definitions = [
-        FieldDefinition('name', xml_node_name='name'),
-        FieldDefinition('age', xml_node_name='age'),
-        FieldDefinition('dob', xml_node_name='dateOfBirth')
+        FieldDefinition('name', fc.XML, xml_node_name='name'),
+        FieldDefinition('age', fc.XML, xml_node_name='age'),
+        FieldDefinition('dob', fc.XML, xml_node_name='dateOfBirth')
     ]
 
     return FileDefinition(fc.FIXED, field_definitions)
@@ -69,34 +68,34 @@ file-ripper provides easy access to your file data.  The rip_file function takes
  
 
 ```python
-from file_ripper import rip_file, FileDefinition, FieldDefinition, file_constants as fc
+from file_ripper import rip_file, FileInstance, FileDefinition, FieldDefinition, file_constants as fc
 
 field_definitions = [
-    FieldDefinition('name'),
-    FieldDefinition('age'),
-    FieldDefinition('dob')
+    FieldDefinition('name', fc.DELIMITED),
+    FieldDefinition('age', fc.DELIMITED),
+    FieldDefinition('dob', fc.DELIMITED)
 ]
     
 file_definition = FileDefinition(fc.DELIMITED, field_definitions)
 with open('path/to/file.txt', 'r') as file:
-    file_name, file_records = rip_file(file, file_definition)    
+    file_instance: FileInstance = rip_file(file, file_definition)    
 ```
 
 The FileRipper class also supports ripping multiple files using the rip_files function.
 
 ```python
-from file_ripper import rip_files, FileDefinition, FieldDefinition, file_constants as fc
-from typing import List, Tuple
+from file_ripper import rip_files, FileInstance, FileDefinition, FieldDefinition, file_constants as fc
+from typing import List
 
 field_definitions = [
-    FieldDefinition('name'),
-    FieldDefinition('age'),
-    FieldDefinition('dob')
+    FieldDefinition('name', fc.DELIMITED),
+    FieldDefinition('age', fc.DELIMITED),
+    FieldDefinition('dob', fc.DELIMITED)
 ]
     
 file_definition = FileDefinition(fc.DELIMITED, field_definitions)
 with open('path/to/file.txt', 'r') as file:
-    file_results: List[Tuple[str, list]] = rip_files([file], file_definition) 
+    file_results: List[FileInstance] = rip_files([file], file_definition) 
 ```
 
 ## Finding And Ripping Files
@@ -109,16 +108,48 @@ Valid-*.txt will be ripped and have its data added to the result set. Those file
 /usr/bin/completed so that they will not be ripped if that directory is processed a second time
 
 ```python
-from file_ripper import find_and_rip_files, FileDefinition, FieldDefinition, file_constants as fc
-from typing import List, Tuple
+from file_ripper import find_and_rip_files, FileDefinition, FieldDefinition, FileInstance, file_constants as fc
+from typing import List
 
 field_definitions = [
-    FieldDefinition('name'),
-    FieldDefinition('age'),
-    FieldDefinition('dob')
+    FieldDefinition('name', fc.DELIMITED),
+    FieldDefinition('age', fc.DELIMITED),
+    FieldDefinition('dob', fc.DELIMITED)
 ]
     
 file_definition = FileDefinition(fc.DELIMITED, field_definitions, file_mask='Valid-*.txt', input_directory='/usr/bin',
                                  completed_directory='/usr/bin/completed')
-file_results: List[Tuple[str, dict]] = find_and_rip_files(file_definition)
+file_results: List[FileInstance] = find_and_rip_files(file_definition)
 ``` 
+
+## FileInstance and FileRow
+
+file-ripper provides your data via the FileInstance and FileRow classes.  FileInstance provides all the metadata associated 
+with the file as well as a list of FileRow instances representing your data.  FileRow exposes the fields that make up the file
+as a dictionary.  The keys to this dictionary are the field names you supplied in your input FieldDefinition objects.
+
+FileInstance and FileRow are also both iterable directly.  You don't need to access the file_rows and/or fields properties
+to access their data using an iterator or loop. 
+
+FileInstance fields:
+- file_name - the name of the file associated with this instance
+- file_rows - a list of the FileRow objects holding the data ripped from the file
+
+FileRow fields:
+- fields - a dictionary containing the data associated with a row from the file
+
+```python
+from file_ripper import rip_file, FileDefinition, FileInstance, file_constants as fc
+from typing import IO
+
+def process_file(file: IO, file_definition: FileDefinition):
+    file_instance: FileInstance = rip_file(file, file_definition)
+    print(f'ripped file {file_instance.file_name}')
+    index = 1
+    for row in file_instance:
+        print(f'row {index} contains the following')
+        index += 1
+        for field_name in row:
+            print(f'{field_name} : {row[field_name]}')
+        
+```

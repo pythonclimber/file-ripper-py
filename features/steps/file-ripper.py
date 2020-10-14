@@ -1,37 +1,40 @@
 import os
 import os.path
 from datetime import datetime
-from typing import IO, List, Dict
+from typing import IO, List
 
 from behave import given, when, then
 
 from file_ripper import FieldDefinition, FileDefinition, rip_files, rip_file
 from file_ripper import file_constants as fc
-from file_ripper.fileinstance import FileInstance
+from file_ripper.fileinstance import FileInstance, FileRow
 from file_ripper.fileripper import find_and_rip_files
 
 field_names = ['name', 'age', 'dob']
 
 
-def assert_file_records(file_records: List[Dict[str, str]]):
-    assert 'Aaron' == file_records[0]['name']
-    assert '39' == file_records[0]['age']
-    assert '09/04/1980' == file_records[0]['dob']
-    assert 'Gene' == file_records[1]['name']
-    assert '61' == file_records[1]['age']
-    assert '01/15/1958' == file_records[1]['dob']
-    assert 'Xander' == file_records[2]['name']
-    assert '5' == file_records[2]['age']
-    assert '11/22/2014' == file_records[2]['dob']
-    assert 'Mason' == file_records[3]['name']
-    assert '12' == file_records[3]['age']
-    assert '04/13/2007' == file_records[3]['dob']
+def assert_file_records(file_rows: List[FileRow]):
+    assert len(file_rows[0]) == 3
+    assert 'Aaron' == file_rows[0]['name']
+    assert '39' == file_rows[0]['age']
+    assert '09/04/1980' == file_rows[0]['dob']
+    assert len(file_rows[1]) == 3
+    assert 'Gene' == file_rows[1]['name']
+    assert '61' == file_rows[1]['age']
+    assert '01/15/1958' == file_rows[1]['dob']
+    assert len(file_rows[2]) == 3
+    assert 'Xander' == file_rows[2]['name']
+    assert '5' == file_rows[2]['age']
+    assert '11/22/2014' == file_rows[2]['dob']
+    assert len(file_rows[3]) == 3
+    assert 'Mason' == file_rows[3]['name']
+    assert '12' == file_rows[3]['age']
+    assert '04/13/2007' == file_rows[3]['dob']
 
 
 def assert_file_from_list(file_name: str,  file_output_list: List[FileInstance]):
     file_instance = next(x for x in file_output_list if x.file_name.endswith(file_name))
-    file_records = file_instance.file_rows
-    assert_file_records(file_records)
+    assert_file_records(file_instance.file_rows)
 
 
 def write_xml_record(file, name, age, dob):
@@ -64,7 +67,7 @@ def step_impl(context, delimiter):
 
 @given('a delimited file definition with "{delimiter}"')
 def step_impl(context, delimiter):
-    field_definitions = [FieldDefinition(field_name) for field_name in field_names]
+    field_definitions = [FieldDefinition(field_name, 'DELIMITED') for field_name in field_names]
     context.file_definition = FileDefinition(fc.DELIMITED, field_definitions, delimiter=delimiter, has_header=True)
 
 
@@ -77,7 +80,7 @@ def step_impl(context):
 def step_impl(context):
     start_positions = [0, 13, 22]
     field_lengths = [13, 9, 10]
-    field_definitions = [FieldDefinition(field_names[i], start_positions[i], field_lengths[i])
+    field_definitions = [FieldDefinition(field_names[i], 'FIXED', start_positions[i], field_lengths[i])
                          for i in range(0, len(field_names))]
     context.file_definition = FileDefinition(fc.FIXED, field_definitions, has_header=False)
 
@@ -96,8 +99,8 @@ def step_impl(context):
 
 @given('a xml file definition')
 def step_impl(context):
-    field_definitions = [FieldDefinition(field_name) for field_name in field_names]
-    context.file_definition = FileDefinition(fc.XML, field_definitions)
+    field_definitions = [FieldDefinition(field_name, 'XML') for field_name in field_names]
+    context.file_definition = FileDefinition(fc.XML, field_definitions, record_element_name='person')
 
 
 @given('files stored on file system')

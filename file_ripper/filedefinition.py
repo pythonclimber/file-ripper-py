@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass, field
 from typing import List
 
@@ -7,22 +8,37 @@ import file_ripper.fileconstants as fc
 @dataclass
 class FieldDefinition:
     field_name: str
-    start_position: int = field(default=None)
-    field_length: int = field(default=None)
-    xml_node_name: str = field(default='')
+    file_type: str
+    start_position: int
+    field_length: int
+    xml_node_name: str
+
+    def __init__(self, field_name: str, file_type: str, start_position: int = None,
+                 field_length: int = None, xml_node_name: str = ''):
+        self._validate(file_type, field_name, start_position, field_length, xml_node_name)
+        self.file_type = file_type
+        self.field_name = field_name
+        self.start_position = start_position
+        self.field_length = field_length
+        self.xml_node_name = xml_node_name if xml_node_name else field_name
 
     @classmethod
-    def create_from_json(cls, file_type, json_data):
-        cls.validate_json(file_type, json_data)
-        return cls(**json_data)
+    def create_from_dict(cls, file_type, field_definition: dict):
+        return cls(file_type=file_type, **field_definition)
 
     @staticmethod
-    def validate_json(file_type, json_data):
-        if fc.FIELD_NAME not in json_data:
-            raise ValueError('field_name is required for a valid FieldDefinition')
+    def _validate(file_type, field_name, start_position, field_length, xml_node_name):
+        if not field_name:
+            raise ValueError('field_name is required')
 
-        if file_type == fc.FIXED and (fc.START_POSITION not in json_data or fc.FIELD_LENGTH not in json_data):
-            raise ValueError('start_position and field_length are required for a fixed position file')
+        if not file_type:
+            raise ValueError('file_type is required')
+
+        if file_type == fc.FIXED and (start_position is None or field_length is None):
+            raise ValueError('start_position and field_length are required for a fixed position field')
+
+        # if file_type == fc.XML and not xml_node_name:
+        #     raise ValueError('xml_node_name is required for a field in xml')
 
 
 @dataclass
@@ -35,26 +51,37 @@ class FileDefinition:
     input_directory: str = field(default='')
     completed_directory: str = field(default='')
     file_mask: str = field(default='')
-    # export_definition: ExportDefinition = field(default=None)
+
+    def __init__(self, file_type, field_definitions, has_header=False, delimiter='',
+                 record_element_name='', input_directory='', completed_directory='',
+                 file_mask=''):
+        self._validate(file_type, field_definitions, delimiter, record_element_name)
+        self.file_type = file_type
+        self.field_definitions = field_definitions
+        self.has_header = has_header
+        self.delimiter = delimiter
+        self.record_element_name = record_element_name
+        self.input_directory = input_directory
+        self.completed_directory = completed_directory
+        self.file_mask = file_mask
 
     @classmethod
-    def create_from_json(cls, json_data: dict):
+    def create_from_dict(cls, json_data: dict):
         json_copy = json_data.copy()
-        cls.validate_json(json_copy)
-        json_copy[fc.FIELD_DEFINITIONS] = [FieldDefinition.create_from_json(json_copy[fc.FILE_TYPE], obj)
+        json_copy[fc.FIELD_DEFINITIONS] = [FieldDefinition.create_from_dict(json_copy[fc.FILE_TYPE], obj)
                                            for obj in json_copy[fc.FIELD_DEFINITIONS]]
         return cls(**json_copy)
 
     @staticmethod
-    def validate_json(json_data):
-        if fc.FILE_TYPE not in json_data:
-            raise ValueError(f'{fc.FILE_TYPE} is a required property')
+    def _validate(file_type, field_definitions, delimiter, record_element_name):
+        if not file_type:
+            raise ValueError('file_type is required')
 
-        if fc.FIELD_DEFINITIONS not in json_data:
-            raise ValueError(f'{fc.FIELD_DEFINITIONS} is a required property')
+        if not field_definitions:
+            raise ValueError('field_definitions is required')
 
-        if json_data[fc.FILE_TYPE] == fc.DELIMITED and fc.DELIMITER not in json_data:
-            raise ValueError(f'{fc.DELIMITER} is a required property for delimited files')
+        if file_type == fc.DELIMITED and not delimiter:
+            raise ValueError('delimiter is required for delimited files')
 
-        if json_data[fc.FILE_TYPE] == fc.XML and fc.RECORD_ELEMENT_NAME not in json_data:
-            raise ValueError(f'{fc.RECORD_ELEMENT_NAME} is a required property for xml files')
+        if file_type == fc.XML and not record_element_name:
+            raise ValueError('record_element_name is required for xml files')

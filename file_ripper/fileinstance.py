@@ -6,11 +6,20 @@ from typing import List, Dict
 class FileRow:
     fields: Dict[str, str]
 
+    def __contains__(self, item):
+        return item in self.fields
+
+    def __len__(self):
+        return len(self.fields)
+
     def __iter__(self):
-        return self.fields.__iter__()
+        return iter(self.fields)
 
     def __getitem__(self, item):
         return self.fields[item]
+
+    def __reversed__(self):
+        return reversed(self.fields)
 
 
 @dataclass
@@ -18,15 +27,14 @@ class FileInstance:
     file_name: str
     file_rows: List[FileRow]
 
-    def __iter__(self):
-        self.i = 0
-        return self
+    def __contains__(self, item):
+        return item in self.file_rows
 
-    def __next__(self):
-        if self.i >= len(self.file_rows):
-            raise StopIteration
-        row, self.i = self.file_rows[self.i], self.i + 1
-        return row
+    def __len__(self):
+        return len(self.file_rows)
+
+    def __iter__(self):
+        return iter(self.file_rows)
 
     def __getitem__(self, item):
         return self.file_rows[item]
