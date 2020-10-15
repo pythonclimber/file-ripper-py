@@ -40,6 +40,7 @@ def find_and_rip_files(file_definition: FileDefinition) -> List[FileInstance]:
     for file_name in glob.glob(f'{file_definition.input_directory}/{file_definition.file_mask}'):
         with open(file_name, 'r') as file:
             file_output_list.append(rip_file(file, file_definition))
-            move_file_if_needed(file_name, file_definition)
+
+        move_file_if_needed(file_name, file_definition)
 
     return file_output_list

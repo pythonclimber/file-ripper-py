@@ -46,7 +46,7 @@ def write_xml_record(file, name, age, dob):
 
 
 def create_fixed_file(file_name: str) -> IO:
-    with open(f'features/files/{file_name}', 'w+') as file:
+    with open(file_name, 'w+') as file:
         file.write('Aaron        39       09/04/1980\n')
         file.write('Gene         61       01/15/1958\n')
         file.write('Xander       5        11/22/2014\n')
@@ -56,7 +56,7 @@ def create_fixed_file(file_name: str) -> IO:
 
 @given('a file whose fields are separated by a "{delimiter}"')
 def step_impl(context, delimiter):
-    with open(f'features/files/Valid-delimited-{datetime.now().strftime("%m%d%Y")}.txt', 'w+') as file:
+    with open(f'Valid-delimited-{datetime.now().strftime("%m%d%Y")}.txt', 'w+') as file:
         file.write(f'Name{delimiter}Age{delimiter}DOB\n')
         file.write(f'Aaron{delimiter}39{delimiter}09/04/1980\n')
         file.write(f'Gene{delimiter}61{delimiter}01/15/1958\n')
@@ -87,7 +87,7 @@ def step_impl(context):
 
 @given('a file in xml format')
 def step_impl(context):
-    with open(f'features/files/Valid-{datetime.now().strftime("%m%d%Y")}.xml', 'w+') as file:
+    with open(f'Valid-{datetime.now().strftime("%m%d%Y")}.xml', 'w+') as file:
         file.write('<people>\n')
         write_xml_record(file, 'Aaron', 39, '09/04/1980')
         write_xml_record(file, 'Gene', 61, '01/15/1958')
@@ -114,13 +114,13 @@ def step_impl(context):
 
 @given('file definition has input directory, file mask')
 def step_impl(context):
-    context.file_definition.input_directory = f'{os.getcwd()}/features/files'
+    context.file_definition.input_directory = os.getcwd()
     context.file_definition.file_mask = 'Valid-fixed-*.txt'
 
 
 @given('file definition has completed directory')
 def step_impl(context):
-    context.file_definition.completed_directory = f'{os.getcwd()}/features/files/completed'
+    context.file_definition.completed_directory = f'{os.getcwd()}/completed'
 
 
 @when('the file is ripped')
@@ -174,5 +174,4 @@ def step_impl(context):
 def step_impl(context):
     for file_name in context.file_names:
         assert not os.path.exists(f'{os.getcwd()}/{file_name}')
-        assert os.path.exists(f'{context.file_definition.completed_directory}'
-                              f'{file_name[file_name.rindex("/"):]}')
+        assert os.path.exists(f'{context.file_definition.completed_directory}/{file_name}')
