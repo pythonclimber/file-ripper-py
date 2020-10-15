@@ -11,21 +11,21 @@ file-ripper is available for download on PyPI.
 file-ripper provides multiple ways for you to parse your files.  Using file-ripper's FileDefinition and FieldDefinition contracts, you decide how to persist your file configurations:
 
 FieldDefinition fields:
-- field_name - str - required -  the name of the field in the result set
-- start_position - int - required for fixed width files - the start position of the field in its row
-- field_length - int - required for fixed width files - the length of the field
-- xml_node_name - str - optional, name is used if missing - the xml node containing the data
-- position_in_row - int - required for delimited files - the position of the field in the delimited row
+- field_name: str - required -  the name of the field in the result set
+- start_position: int - required for fixed width files - the start position of the field in its row
+- field_length: int - required for fixed width files - the length of the field
+- xml_node_name: str - optional, name is used if missing - the xml node containing the data
+- position_in_row: int - required for delimited files - the position of the field in the delimited row
 
 FileDefinition fields:
-- file_type - str - required - the type of the file.  DELIMITED, FIXED, and XML are currently supported
-- field_definitions - List[FieldDefintion] - required - list of FieldDefinition objects to define data fields
-- has_header - bool - optional - whether the file has a header row to skip or not
-- delimiter - str - required for DELIMITED files - character or string of characters that delimit fields
-- record_element_name - str - required for xml files - name of the xml node that represents a full record
-- file_mask - str - required for finding files - a glob pattern to be used in matching file names for look up
-- input_directory - str - required for finding files - the absolute path where the files reside
-- completed_directory - str - optional - the absolute path to move files to once they are ripped 
+- file_type: str - required - the type of the file.  DELIMITED, FIXED, and XML are currently supported
+- field_definitions: List[FieldDefinition] - required - list of FieldDefinition objects to define data fields
+- has_header: bool - optional - whether the file has a header row to skip or not
+- delimiter: str - required for DELIMITED files - character or string of characters that delimit fields
+- record_element_name: str - required for xml files - name of the xml node that represents a full record
+- file_mask: str - required for finding files - a glob pattern to be used in matching file names for look up
+- input_directory: str - required for finding files - the absolute path where the files reside
+- completed_directory: str - optional - the absolute path to move files to once they are ripped 
 
 ```python
 from file_ripper import FieldDefinition, FileDefinition, file_constants as fc
@@ -133,11 +133,11 @@ FileInstance and FileRow are also both iterable directly.  You don't need to acc
 to access their data using an iterator or loop. 
 
 FileInstance fields:
-- file_name - the name of the file associated with this instance
-- file_rows - a list of the FileRow objects holding the data ripped from the file
+- file_name: str - the name of the file associated with this instance
+- file_rows: List[FileRow] - objects holding the data ripped from the file
 
 FileRow fields:
-- fields - a dictionary containing the data associated with a row from the file
+- fields: Dict[str, str] the data associated with a row from the file
 
 ```python
 from file_ripper import rip_file, FileDefinition, FileInstance, file_constants as fc

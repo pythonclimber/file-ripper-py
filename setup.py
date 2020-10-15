@@ -4,7 +4,7 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
     setuptools.setup(
         name='file-ripper',
-        version='1.2.0',
+        version='1.3.0',
         author='Aaron Smith',
         author_email='asmitty92@gmail.com',
         license='MIT',
