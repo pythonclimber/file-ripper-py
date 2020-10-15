@@ -15,8 +15,8 @@ class TestFieldDefinitionConstruction(TestCase):
             FieldDefinition('name', '')
 
     def test_file_type_delimited_field_name_only(self):
-        field_definition = FieldDefinition('name', fc.DELIMITED)
-        self.assertEqual('name', field_definition.field_name)
+        with self.assertRaises(ValueError):
+            FieldDefinition('name', fc.DELIMITED)
 
     def test_file_type_fixed_without_start_position(self):
         with self.assertRaises(ValueError):
@@ -37,7 +37,8 @@ class TestFieldDefinitionCreateFromDict(TestCase):
             fc.FIELD_NAME: 'age',
             fc.START_POSITION: 10,
             fc.FIELD_LENGTH: 5,
-            fc.XML_NODE_NAME: 'personAge'
+            fc.XML_NODE_NAME: 'personAge',
+            fc.POSITION_IN_ROW: 0
         })
 
     def test_file_type_set(self):
@@ -115,7 +116,8 @@ class TestFileDefinitionCreateDelimitedFromDict(TestCase):
             fc.COMPLETED_DIRECTORY: 'completed',
             fc.FILE_MASK: 'mask',
             fc.FIELD_DEFINITIONS: [{
-                fc.FIELD_NAME: 'name'
+                fc.FIELD_NAME: 'name',
+                fc.POSITION_IN_ROW: 0
             }]
         })
 

@@ -12,14 +12,16 @@ class FieldDefinition:
     start_position: int
     field_length: int
     xml_node_name: str
+    position_in_row: int
 
     def __init__(self, field_name: str, file_type: str, start_position: int = None,
-                 field_length: int = None, xml_node_name: str = ''):
-        self._validate(file_type, field_name, start_position, field_length, xml_node_name)
+                 field_length: int = None, xml_node_name: str = '', position_in_row: int = None):
+        self._validate(file_type, field_name, start_position, field_length, position_in_row)
         self.file_type = file_type
         self.field_name = field_name
         self.start_position = start_position
         self.field_length = field_length
+        self.position_in_row = position_in_row
         self.xml_node_name = xml_node_name if xml_node_name else field_name
 
     @classmethod
@@ -27,7 +29,7 @@ class FieldDefinition:
         return cls(file_type=file_type, **field_definition)
 
     @staticmethod
-    def _validate(file_type, field_name, start_position, field_length, xml_node_name):
+    def _validate(file_type, field_name, start_position, field_length, position_in_row):
         if not field_name:
             raise ValueError('field_name is required')
 
@@ -36,6 +38,9 @@ class FieldDefinition:
 
         if file_type == fc.FIXED and (start_position is None or field_length is None):
             raise ValueError('start_position and field_length are required for a fixed position field')
+
+        if file_type == fc.DELIMITED and position_in_row is None:
+            raise ValueError('position_in_row is required for delimited files')
 
         # if file_type == fc.XML and not xml_node_name:
         #     raise ValueError('xml_node_name is required for a field in xml')

@@ -1,10 +1,10 @@
 import glob
 import os
-from typing import IO, List, Tuple
+from typing import IO, List
 
 from file_ripper.filedefinition import FileDefinition
 from file_ripper.fileinstance import FileInstance
-from file_ripper.fileservice import FileService
+from file_ripper.fileservice import create_file_service
 
 
 def validate_file_definition(file_definition: FileDefinition):
@@ -25,7 +25,7 @@ def move_file_if_needed(file_name: str, file_definition: FileDefinition):
 
 
 def rip_file(file: IO, file_definition: FileDefinition) -> FileInstance:
-    file_service = FileService.create_file_service(file_definition)
+    file_service = create_file_service(file_definition)
     return file_service.process(file)
 
 

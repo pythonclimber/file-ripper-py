@@ -57,17 +57,21 @@ def create_fixed_file(file_name: str) -> IO:
 @given('a file whose fields are separated by a "{delimiter}"')
 def step_impl(context, delimiter):
     with open(f'Valid-delimited-{datetime.now().strftime("%m%d%Y")}.txt', 'w+') as file:
-        file.write(f'Name{delimiter}Age{delimiter}DOB\n')
-        file.write(f'Aaron{delimiter}39{delimiter}09/04/1980\n')
-        file.write(f'Gene{delimiter}61{delimiter}01/15/1958\n')
-        file.write(f'Xander{delimiter}5{delimiter}11/22/2014\n')
-        file.write(f'Mason{delimiter}12{delimiter}04/13/2007\n')
+        file.write(f'Name{delimiter}DOB{delimiter}Age\n')
+        file.write(f'Aaron{delimiter}09/04/1980{delimiter}39\n')
+        file.write(f'Gene{delimiter}01/15/1958{delimiter}61\n')
+        file.write(f'Xander{delimiter}11/22/2014{delimiter}5\n')
+        file.write(f'Mason{delimiter}04/13/2007{delimiter}12\n')
         context.file = file
 
 
 @given('a delimited file definition with "{delimiter}"')
 def step_impl(context, delimiter):
-    field_definitions = [FieldDefinition(field_name, 'DELIMITED') for field_name in field_names]
+    field_definitions = [
+        FieldDefinition('age', 'DELIMITED', position_in_row=2),
+        FieldDefinition('dob', 'DELIMITED', position_in_row=1),
+        FieldDefinition('name', 'DELIMITED', position_in_row=0)
+    ]
     context.file_definition = FileDefinition(fc.DELIMITED, field_definitions, delimiter=delimiter, has_header=True)
 
 

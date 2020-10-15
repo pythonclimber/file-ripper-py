@@ -48,3 +48,6 @@ class FileConstantsTests(TestCase):
 
     def test_completed_directory(self):
         self.assertEqual(fc.COMPLETED_DIRECTORY, 'completed_directory')
+
+    def test_position_in_row(self):
+        self.assertEqual('position_in_row', fc.POSITION_IN_ROW)

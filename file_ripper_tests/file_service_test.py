@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import file_ripper.fileconstants as fc
 from file_ripper.filedefinition import FileDefinition, FieldDefinition
-from file_ripper.fileservice import XmlFileService, DelimitedFileService, FixedFileService, FileService
+from file_ripper.fileservice import XmlFileService, FileService, FlatFileService, create_file_service
 
 
 class CreateFileServiceTests(TestCase):
@@ -12,31 +12,32 @@ class CreateFileServiceTests(TestCase):
     def test_xml_file_definition(self):
         """Create xml file service given and xml file definition"""
         file_definition = self.create_file_definition(fc.XML, record_element_name='record')
-        file_service = FileService.create_file_service(file_definition)
+        file_service = create_file_service(file_definition)
         self.assertTrue(isinstance(file_service, XmlFileService))
 
     def test_delimited_file_definition(self):
         """Create delimited file service given a delimited file definition"""
-        file_definition = self.create_file_definition(fc.DELIMITED, delimiter='\t')
-        file_service = FileService.create_file_service(file_definition)
-        self.assertTrue(isinstance(file_service, DelimitedFileService))
+        file_definition = self.create_file_definition(fc.DELIMITED, delimiter='\t', position_in_row=0)
+        file_service = create_file_service(file_definition)
+        self.assertTrue(isinstance(file_service, FlatFileService))
 
     def test_fixed_file_definition(self):
         """Create fixed file service given fixed file definition"""
         file_definition = self.create_file_definition(fc.FIXED, start_position=0, field_length=12)
-        file_service = FileService.create_file_service(file_definition)
-        self.assertTrue(isinstance(file_service, FixedFileService))
+        file_service = create_file_service(file_definition)
+        self.assertTrue(isinstance(file_service, FlatFileService))
 
     def test_invalid_file_type(self):
         """Raise value error when invalid file type is created"""
         file_definition = self.create_file_definition('file_type')
         with self.assertRaises(ValueError):
-            FileService.create_file_service(file_definition)
+            create_file_service(file_definition)
 
     @staticmethod
     def create_file_definition(file_type, delimiter=None, record_element_name=None, start_position=None,
-                               field_length=None):
-        field_definitions = [FieldDefinition('name', file_type, start_position=start_position, field_length=field_length)]
+                               field_length=None, position_in_row=None):
+        field_definitions = [FieldDefinition('name', file_type, start_position=start_position,
+                                             field_length=field_length, position_in_row=position_in_row)]
         return FileDefinition(file_type, field_definitions,
                               record_element_name=record_element_name,
                               delimiter=delimiter)
@@ -46,9 +47,9 @@ class FileServiceTests(unittest.TestCase):
     def create_file_definitions(self, file_type):
         self.file_name = None
         self.field_definitions = [
-            FieldDefinition('name', file_type, 0, 13),
-            FieldDefinition('age', file_type, 13, 9),
-            FieldDefinition('dob', file_type, 22, 10)
+            FieldDefinition('name', file_type, 0, 13, position_in_row=0),
+            FieldDefinition('age', file_type, 13, 9, position_in_row=2),
+            FieldDefinition('dob', file_type, 22, 10, position_in_row=1)
         ]
 
     def assert_valid_file_output(self, output_file_name, file_records):
@@ -71,28 +72,28 @@ class FileServiceTests(unittest.TestCase):
     def test_process_records_not_implemented(self):
         file_service = FileService(FileDefinition(fc.FIXED, [FieldDefinition('hello', 'file_type')]))
         with self.assertRaises(NotImplementedError):
-            file_service.process_file_records(file_service)
+            file_service.process_file_records(None)
 
     def tearDown(self):
         try:
             if self.file_name:
                 os.remove(self.file_name)
-        except Exception as ex:
-            print(ex)
+        except Exception:
+            pass
 
 
 class DelimitedFileServiceTests(FileServiceTests):
     def setUp(self):
         super().create_file_definitions(fc.DELIMITED)
         self.file_definition = FileDefinition(fc.DELIMITED, self.field_definitions, True, '|')
-        self.file_service = DelimitedFileService(self.file_definition)
+        self.file_service = FlatFileService(self.file_definition)
         self.file_name = 'Valid-delimited-09032019.txt'
         with open(self.file_name, 'w') as f:
-            f.write('Name|Age|DOB\n')
-            f.write('Aaron|39|09/04/1980\n')
-            f.write('Gene|61|01/15/1958\n')
-            f.write('Xander|4|11/22/2014\n')
-            f.write('Mason|12|04/13/2007\n')
+            f.write('Name|DOB|Age\n')
+            f.write('Aaron|09/04/1980|39\n')
+            f.write('Gene|01/15/1958|61\n')
+            f.write('Xander|11/22/2014|4\n')
+            f.write('Mason|04/13/2007|12\n')
 
     def test_process_given_pipe_delimiter(self):
         with open(self.file_name, 'r') as file:
@@ -110,7 +111,7 @@ class FixedFileServiceTests(FileServiceTests):
     def setUp(self):
         super(FixedFileServiceTests, self).create_file_definitions(fc.FIXED)
         self.file_definition = FileDefinition(fc.FIXED, self.field_definitions, True)
-        self.file_service = FileService.create_file_service(self.file_definition)
+        self.file_service = create_file_service(self.file_definition)
         self.file_name = 'Valid-fixed-09032019.txt'
         with open(self.file_name, 'w') as f:
             f.write('Name         Age      DOB       \n')
@@ -167,7 +168,3 @@ class XmlFileServiceTests(FileServiceTests):
             self.file_definition.field_definitions.append(
                 FieldDefinition.create_from_dict(fc.XML, {fc.FIELD_NAME: 'address'}))
             self.assertRaises(AttributeError, self.file_service.process, file)
-
-
-if __name__ == '__main__':
-    unittest.main()
