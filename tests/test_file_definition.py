@@ -1,4 +1,3 @@
-import json
 from unittest import TestCase
 
 import file_ripper.fileconstants as fc

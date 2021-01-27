@@ -1,2 +1,2 @@
-behave
-pytest
+behave==1.2.6
+pytest==6.1.1

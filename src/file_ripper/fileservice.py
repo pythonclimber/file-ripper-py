@@ -1,4 +1,4 @@
-from typing import IO, Callable, Dict
+from typing import IO
 from xml.etree.ElementTree import fromstring
 
 import file_ripper.fileconstants as fc
