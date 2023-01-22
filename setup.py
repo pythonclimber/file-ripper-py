@@ -12,6 +12,7 @@ with open('README.md', 'r') as fh:
         long_description_content_type='text/markdown',
         packages=setuptools.find_packages('src'),
         package_dir={'': 'src'},
+        install_requires=[],
         classifiers=[
             'Development Status :: 5 - Production/Stable',
             'Intended Audience :: Developers',
