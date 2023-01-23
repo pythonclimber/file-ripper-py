@@ -15,7 +15,7 @@ class FileService:
         return FileInstance(file.name, records)
 
     def process_file_records(self, file):
-        raise NotImplementedError('Please use a valid implementation of FileService to read files')
+        raise NotImplementedError("Please use a valid implementation of FileService to read files")
 
 
 class XmlFileService(FileService):
@@ -23,13 +23,13 @@ class XmlFileService(FileService):
         super().__init__(file_definition)
 
     def process_file_records(self, file: IO):
-        tree = fromstring(''.join(file.readlines()))
+        tree = fromstring("".join(file.readlines()))
 
         file_rows = []
-        for item in tree.findall(f'./{self.file_definition.record_element_name}'):
+        for item in tree.findall(f"./{self.file_definition.record_element_name}"):
             record = {}
             for field_def in self.file_definition.field_definitions:
-                record[field_def.field_name] = item.find(f'{field_def.field_name}').text
+                record[field_def.field_name] = item.find(f"{field_def.field_name}").text
             file_rows.append(FileRow(record))
 
         return file_rows
@@ -46,9 +46,11 @@ class FlatFileService(FileService):
             lines.pop(0)
 
         for line in lines:
-            record = self.process_delimited_line(line) \
-                if self.file_definition.file_type == fc.DELIMITED \
+            record = (
+                self.process_delimited_line(line)
+                if self.file_definition.file_type == fc.DELIMITED
                 else self.process_fixed_line(line)
+            )
             records.append(record)
 
         return records
@@ -59,11 +61,12 @@ class FlatFileService(FileService):
 
         field_count = len(self.file_definition.field_definitions)
         if field_count != len(fields):
-            raise OSError('File records do not match file definition')
+            raise OSError("File records do not match file definition")
 
         for i in range(0, field_count):
-            record[self.file_definition.field_definitions[i].field_name] = \
-                fields[self.file_definition.field_definitions[i].position_in_row]
+            record[self.file_definition.field_definitions[i].field_name] = fields[
+                self.file_definition.field_definitions[i].position_in_row
+            ]
         return FileRow(record)
 
     def process_fixed_line(self, line):
@@ -71,8 +74,8 @@ class FlatFileService(FileService):
         for field_def in self.file_definition.field_definitions:
             end_position = field_def.start_position + field_def.field_length
             if end_position > len(line.rstrip()):
-                raise IndexError(f'field {field_def.field_name} extends past the end of line')
-            record[field_def.field_name] = line[field_def.start_position:end_position].rstrip()
+                raise IndexError(f"field {field_def.field_name} extends past the end of line")
+            record[field_def.field_name] = line[field_def.start_position : end_position].rstrip()
         return FileRow(record)
 
 
@@ -84,4 +87,4 @@ def create_file_service(file_definition):
     elif file_definition.file_type == fc.FIXED:
         return FlatFileService(file_definition)
     else:
-        raise ValueError(f'file_definition is configured for unsupported file_type: {file_definition.file_type}')
+        raise ValueError(f"file_definition is configured for unsupported file_type: {file_definition.file_type}")
