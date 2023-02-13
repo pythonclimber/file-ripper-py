@@ -1,10 +1,12 @@
 import os
+import shutil
 from datetime import datetime
 from types import SimpleNamespace
 from typing import List, IO
 
 from pytest_bdd import scenarios, given, when, then
 from pytest_bdd.parsers import parse
+from pytest import fixture
 
 from file_ripper import FieldDefinition, FileDefinition, rip_file, rip_files, find_and_rip_files
 from file_ripper import file_constants as fc
@@ -12,6 +14,31 @@ from file_ripper.fileinstance import FileRow, FileInstance
 
 scenarios("../features/FileRipper.feature")
 field_names = ['name', 'age', 'dob']
+
+
+def before_scenario(context):
+    if not os.path.exists('tests/files'):
+        os.mkdir('tests/files')
+    context.original_cwd = os.getcwd()
+    file_path = os.path.join(os.getcwd(), 'tests/files')
+    os.chdir(file_path)
+
+
+def after_scenario(context):
+    try:
+        path_to_delete = os.getcwd()
+        os.chdir(context.original_cwd)
+        shutil.rmtree(path_to_delete)
+    except Exception as ex:
+        print(ex)
+
+
+@fixture(autouse=True)
+def configure_environment():
+    context = SimpleNamespace()
+    before_scenario(context)
+    yield context
+    after_scenario(context)
 
 
 def assert_file_records(file_rows: List[FileRow]):
@@ -61,8 +88,8 @@ def publish_file_definition(file_definition: FileDefinition):
 
 
 @given(parse("a file whose fields are separated by a {delimiter}"), target_fixture="context")
-def step_impl(delimiter):
-    context = SimpleNamespace()
+def step_impl(delimiter, configure_environment):
+    context = configure_environment
     with open(f'Valid-delimited-{datetime.now().strftime("%m%d%Y")}.txt', 'w+') as file:
         file.write(f'Name{delimiter}DOB{delimiter}Age\n')
         file.write(f'Aaron{delimiter}09/04/1980{delimiter}39\n')
@@ -86,8 +113,8 @@ def step_impl(delimiter, context):
 
 
 @given('a file whose fields are of fixed width', target_fixture="context")
-def step_impl():
-    context = SimpleNamespace()
+def step_impl(configure_environment):
+    context = configure_environment
     context.file = create_fixed_file(f'Valid-fixed-{datetime.now().strftime("%m%d%Y")}.txt')
     return context
 
@@ -103,8 +130,8 @@ def step_impl(context):
 
 
 @given('a file in xml format', target_fixture="context")
-def step_impl():
-    context = SimpleNamespace()
+def step_impl(configure_environment):
+    context = configure_environment
     with open(f'Valid-{datetime.now().strftime("%m%d%Y")}.xml', 'w+') as file:
         file.write('<people>\n')
         write_xml_record(file, 'Aaron', 39, '09/04/1980')
@@ -124,8 +151,8 @@ def step_impl(context):
 
 
 @given('files stored on file system', target_fixture="context")
-def step_impl():
-    context = SimpleNamespace()
+def step_impl(configure_environment):
+    context = configure_environment
     context.files = [
         create_fixed_file(f'Valid-fixed-{datetime.now().strftime("%m%d%Y")}-1.txt'),
         create_fixed_file(f'Valid-fixed-{datetime.now().strftime("%m%d%Y")}-2.txt'),
