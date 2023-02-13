@@ -55,6 +55,11 @@ def write_xml_record(file, name, age, dob):
     file.write('\t</person>\n')
 
 
+def publish_file_definition(file_definition: FileDefinition):
+    with open('file.json', 'wt') as file:
+        file.write(file_definition.to_json())
+
+
 @given(parse("a file whose fields are separated by a {delimiter}"), target_fixture="context")
 def step_impl(delimiter):
     context = SimpleNamespace()
@@ -76,6 +81,7 @@ def step_impl(delimiter, context):
         FieldDefinition('name', 'DELIMITED', position_in_row=0)
     ]
     context.file_definition = FileDefinition(fc.DELIMITED, field_definitions, delimiter=delimiter, has_header=True)
+    publish_file_definition(context.file_definition)
     return context
 
 

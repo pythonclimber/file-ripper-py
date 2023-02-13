@@ -1,9 +1,12 @@
 from dataclasses import dataclass, field
 from typing import List
 
+from dataclasses_json import dataclass_json, LetterCase
+
 import file_ripper.fileconstants as fc
 
 
+@dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class FieldDefinition:
     field_name: str
@@ -52,6 +55,7 @@ class FieldDefinition:
         #     raise ValueError('xml_node_name is required for a field in xml')
 
 
+@dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class FileDefinition:
     file_type: str
