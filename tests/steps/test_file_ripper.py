@@ -88,8 +88,8 @@ def publish_file_definition(file_definition: FileDefinition):
 
 
 @given(parse("a file whose fields are separated by a {delimiter}"), target_fixture="context")
-def step_impl(delimiter, configure_environment):
-    context = configure_environment
+def step_impl(delimiter):
+    context = SimpleNamespace()
     with open(f'Valid-delimited-{datetime.now().strftime("%m%d%Y")}.txt', 'w+') as file:
         file.write(f'Name{delimiter}DOB{delimiter}Age\n')
         file.write(f'Aaron{delimiter}09/04/1980{delimiter}39\n')
@@ -113,8 +113,8 @@ def step_impl(delimiter, context):
 
 
 @given('a file whose fields are of fixed width', target_fixture="context")
-def step_impl(configure_environment):
-    context = configure_environment
+def step_impl():
+    context = SimpleNamespace()
     context.file = create_fixed_file(f'Valid-fixed-{datetime.now().strftime("%m%d%Y")}.txt')
     return context
 
@@ -130,8 +130,8 @@ def step_impl(context):
 
 
 @given('a file in xml format', target_fixture="context")
-def step_impl(configure_environment):
-    context = configure_environment
+def step_impl():
+    context = SimpleNamespace()
     with open(f'Valid-{datetime.now().strftime("%m%d%Y")}.xml', 'w+') as file:
         file.write('<people>\n')
         write_xml_record(file, 'Aaron', 39, '09/04/1980')
@@ -151,8 +151,8 @@ def step_impl(context):
 
 
 @given('files stored on file system', target_fixture="context")
-def step_impl(configure_environment):
-    context = configure_environment
+def step_impl():
+    context = SimpleNamespace()
     context.files = [
         create_fixed_file(f'Valid-fixed-{datetime.now().strftime("%m%d%Y")}-1.txt'),
         create_fixed_file(f'Valid-fixed-{datetime.now().strftime("%m%d%Y")}-2.txt'),
