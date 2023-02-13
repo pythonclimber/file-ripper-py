@@ -2,7 +2,7 @@ from time import sleep
 
 
 def run_file_ripper_once(definitions_file, definitions_format):
-    pass
+    print("running file ripper")
 
 
 def run_file_ripper_continuously(definitions_file, definitions_format, interval_minutes=5):

@@ -2,9 +2,9 @@ import logging
 import sys
 
 import click
-import signal
 
 from exit_codes import ExitCode
+from .commands import run_file_ripper_once, run_file_ripper_continuously
 
 
 @click.group()
@@ -15,12 +15,13 @@ def cli():
 @cli.command("exec")
 @click.argument("definitions_file", type=click.File("rt"))
 @click.option("-fmt", "--format", "definitions_format", type=str, default="json")
-@click.option("-ro", "--run_once", "run_once", is_flag=True, default=False)
-def handle_exec(definitions_file, definitions_format, run_once):
+@click.option("-ro", "--run-once", "run_once", is_flag=True, default=False)
+@click.option("-ti", "--time-interval", "time_interval", type=int, default=5)
+def handle_exec(definitions_file, definitions_format, run_once, time_interval):
     if run_once:
-        print("only once")
+        run_file_ripper_once(definitions_file, definitions_format)
     else:
-        print("continuous")
+        run_file_ripper_continuously(definitions_file, definitions_format, time_interval)
     return ExitCode.OK
 
 
