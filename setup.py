@@ -12,7 +12,10 @@ with open('README.md', 'r') as fh:
         long_description_content_type='text/markdown',
         packages=setuptools.find_packages('src'),
         package_dir={'': 'src'},
-        install_requires=[],
+        install_requires=[
+            "click",
+            "dataclasses_json",
+        ],
         entry_points={
             "console_scripts": [
                 "file-ripper = file_ripper.cli:main"
