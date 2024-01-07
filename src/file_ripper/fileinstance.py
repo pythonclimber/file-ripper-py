@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from typing import List, Dict
 
+from dataclasses_json import dataclass_json, LetterCase
 
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class FileRow:
     fields: Dict[str, str]
@@ -22,6 +25,7 @@ class FileRow:
         return reversed(self.fields)
 
 
+@dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
 class FileInstance:
     file_name: str

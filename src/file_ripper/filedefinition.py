@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import List
 
 from dataclasses_json import dataclass_json, LetterCase
+from dataclasses_json.stringcase import snakecase
 
 import file_ripper.fileconstants as fc
 
@@ -35,7 +36,8 @@ class FieldDefinition:
 
     @classmethod
     def create_from_dict(cls, file_type, field_definition: dict):
-        return cls(file_type=file_type, **field_definition)
+        field_def_copy = {snakecase(k): v for k, v in field_definition.items()}
+        return cls(file_type=file_type, **field_def_copy)
 
     @staticmethod
     def _validate(file_type, field_name, start_position, field_length, position_in_row):
@@ -62,7 +64,7 @@ class FileDefinition:
     field_definitions: List[FieldDefinition]
     has_header: bool = field(default=False)
     delimiter: str = field(default="")
-    record_element_name: str = field(default="")
+    record_xml_element: str = field(default="")
     input_directory: str = field(default="")
     completed_directory: str = field(default="")
     file_mask: str = field(default="")
@@ -73,24 +75,24 @@ class FileDefinition:
         field_definitions,
         has_header=False,
         delimiter="",
-        record_element_name="",
+        record_xml_element="",
         input_directory="",
         completed_directory="",
         file_mask="",
     ):
-        self._validate(file_type, field_definitions, delimiter, record_element_name)
+        self._validate(file_type, field_definitions, delimiter, record_xml_element)
         self.file_type = file_type
         self.field_definitions = field_definitions
         self.has_header = has_header
         self.delimiter = delimiter
-        self.record_element_name = record_element_name
+        self.record_xml_element = record_xml_element
         self.input_directory = input_directory
         self.completed_directory = completed_directory
         self.file_mask = file_mask
 
     @classmethod
     def create_from_dict(cls, json_data: dict):
-        json_copy = json_data.copy()
+        json_copy = {snakecase(k): v for k, v in json_data.items()}
         json_copy[fc.FIELD_DEFINITIONS] = [
             FieldDefinition.create_from_dict(json_copy[fc.FILE_TYPE], obj) for obj in json_copy[fc.FIELD_DEFINITIONS]
         ]

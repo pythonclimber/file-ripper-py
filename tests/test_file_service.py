@@ -39,7 +39,7 @@ class CreateFileServiceTests(TestCase):
         field_definitions = [FieldDefinition('name', file_type, start_position=start_position,
                                              field_length=field_length, position_in_row=position_in_row)]
         return FileDefinition(file_type, field_definitions,
-                              record_element_name=record_element_name,
+                              record_xml_element=record_element_name,
                               delimiter=delimiter)
 
 
@@ -100,12 +100,6 @@ class DelimitedFileServiceTests(FileServiceTests):
             file_instance = self.file_service.process(file)
             self.assert_valid_file_output(file_instance.file_name, file_instance.file_rows)
 
-    def test_process_given_invalid_file(self):
-        with open(self.file_name, 'r') as file:
-            self.file_definition.field_definitions.remove(self.file_definition.field_definitions[-1])
-            with self.assertRaises(OSError):
-                self.file_service.process(file)
-
 
 class FixedFileServiceTests(FileServiceTests):
     def setUp(self):
@@ -139,7 +133,7 @@ class FixedFileServiceTests(FileServiceTests):
 class XmlFileServiceTests(FileServiceTests):
     def setUp(self):
         super(XmlFileServiceTests, self).create_file_definitions(fc.XML)
-        self.file_definition = FileDefinition(fc.XML, self.field_definitions, record_element_name='person')
+        self.file_definition = FileDefinition(fc.XML, self.field_definitions, record_xml_element='person')
         self.file_service = XmlFileService(self.file_definition)
         self.file_name = 'Valid-xml-09032019.txt'
         with open(self.file_name, 'w') as f:

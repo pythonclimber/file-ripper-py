@@ -4,7 +4,7 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
     setuptools.setup(
         name='file-ripper',
-        version='1.3.2',
+        version='1.4.2',
         author='Aaron Smith',
         author_email='asmitty92@gmail.com',
         license='MIT',
@@ -30,7 +30,10 @@ with open('README.md', 'r') as fh:
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
-
+            'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11',
         ]
     )
 

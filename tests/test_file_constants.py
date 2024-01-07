@@ -38,7 +38,7 @@ class FileConstantsTests(TestCase):
         self.assertEqual(fc.FIELD_LENGTH, 'field_length')
 
     def test_record_element_name(self):
-        self.assertEqual(fc.RECORD_ELEMENT_NAME, 'record_element_name')
+        self.assertEqual(fc.RECORD_ELEMENT_NAME, 'record_xml_element')
 
     def test_xml_node_name(self):
         self.assertEqual(fc.XML_NODE_NAME, 'xml_node_name')

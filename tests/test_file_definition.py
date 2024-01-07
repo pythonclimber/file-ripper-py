@@ -60,7 +60,7 @@ class TestFileDefinitionConstruction(TestCase):
     def setUp(self) -> None:
         self.field_definition = FieldDefinition('dob', 'XML')
         self.file_definition = FileDefinition('XML', [self.field_definition], has_header=True,
-                                              delimiter='|', record_element_name='person',
+                                              delimiter='|', record_xml_element='person',
                                               input_directory='input', completed_directory='completed',
                                               file_mask='mask')
 
@@ -76,7 +76,7 @@ class TestFileDefinitionConstruction(TestCase):
         self.assertEqual('|', self.file_definition.delimiter)
 
     def test_record_element_name(self):
-        self.assertEqual('person', self.file_definition.record_element_name)
+        self.assertEqual('person', self.file_definition.record_xml_element)
 
     def test_input_directory(self):
         self.assertEqual('input', self.file_definition.input_directory)
@@ -101,7 +101,7 @@ class TestFileDefinitionConstruction(TestCase):
 
     def test_xml_file_record_element_name_missing(self):
         with self.assertRaises(ValueError):
-            FileDefinition(fc.XML, [self.field_definition], record_element_name='')
+            FileDefinition(fc.XML, [self.field_definition], record_xml_element='')
 
 
 class TestFileDefinitionCreateDelimitedFromDict(TestCase):
@@ -127,7 +127,7 @@ class TestFileDefinitionCreateDelimitedFromDict(TestCase):
         self.assertEqual(',', self.file_definition.delimiter)
 
     def test_record_element_name(self):
-        self.assertEqual('record', self.file_definition.record_element_name)
+        self.assertEqual('record', self.file_definition.record_xml_element)
 
     def test_has_header(self):
         self.assertTrue(self.file_definition.has_header)

@@ -146,7 +146,7 @@ def step_impl():
 @given('a xml file definition', target_fixture="context")
 def step_impl(context):
     field_definitions = [FieldDefinition(field_name, 'XML') for field_name in field_names]
-    context.file_definition = FileDefinition(fc.XML, field_definitions, record_element_name='person')
+    context.file_definition = FileDefinition(fc.XML, field_definitions, record_xml_element='person')
     return context
 
 

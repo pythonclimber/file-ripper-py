@@ -26,7 +26,7 @@ class XmlFileService(FileService):
         tree = fromstring("".join(file.readlines()))
 
         file_rows = []
-        for item in tree.findall(f"./{self.file_definition.record_element_name}"):
+        for item in tree.findall(f"./{self.file_definition.record_xml_element}"):
             record = {}
             for field_def in self.file_definition.field_definitions:
                 record[field_def.field_name] = item.find(f"{field_def.field_name}").text
@@ -60,13 +60,11 @@ class FlatFileService(FileService):
         record = {}
 
         field_count = len(self.file_definition.field_definitions)
-        if field_count != len(fields):
-            raise OSError("File records do not match file definition")
 
         for i in range(0, field_count):
-            record[self.file_definition.field_definitions[i].field_name] = fields[
-                self.file_definition.field_definitions[i].position_in_row
-            ]
+            field_def = self.file_definition.field_definitions[i]
+            record[field_def.field_name] = fields[field_def.position_in_row]
+
         return FileRow(record)
 
     def process_fixed_line(self, line):
@@ -75,7 +73,7 @@ class FlatFileService(FileService):
             end_position = field_def.start_position + field_def.field_length
             if end_position > len(line.rstrip()):
                 raise IndexError(f"field {field_def.field_name} extends past the end of line")
-            record[field_def.field_name] = line[field_def.start_position : end_position].rstrip()
+            record[field_def.field_name] = line[field_def.start_position : end_position].rstrip().lstrip()
         return FileRow(record)
 
 

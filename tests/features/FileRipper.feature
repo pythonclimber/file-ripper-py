@@ -65,13 +65,13 @@ Feature: File Ripper Business Features
     Given a file whose fields are of fixed width
     And a delimited file definition with "|"
     When the file is ripped
-    Then a OSError occurs
+    Then a IndexError occurs
 
   Scenario: A xml file and a delimited file definition
     Given a file in xml format
     And a delimited file definition with "\t"
     When the file is ripped
-    Then a OSError occurs
+    Then a IndexError occurs
 
   Scenario: A xml file and a fixed file definition
     Given a file in xml format
