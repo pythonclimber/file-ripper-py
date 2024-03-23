@@ -14,7 +14,7 @@ FieldDefinition fields:
 - field_name: str - required -  the name of the field in the result set
 - start_position: int - required for fixed width files - the start position of the field in its row
 - field_length: int - required for fixed width files - the length of the field
-- xml_node_name: str - optional, name is used if missing - the xml node containing the data
+- xml_node_name: str - optional, field_name is used if missing - the xml node containing the data
 - position_in_row: int - required for delimited files - the position of the field in the delimited row
 
 FileDefinition fields:
