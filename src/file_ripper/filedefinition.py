@@ -16,15 +16,19 @@ class FieldDefinition:
     field_length: int
     xml_node_name: str
     position_in_row: int
+    field_definitions: list
+    delimiter: str
 
     def __init__(
-        self,
-        field_name: str,
-        file_type: str,
-        start_position: int = None,
-        field_length: int = None,
-        xml_node_name: str = "",
-        position_in_row: int = None,
+            self,
+            field_name: str,
+            file_type: str,
+            start_position: int = None,
+            field_length: int = None,
+            xml_node_name: str = "",
+            position_in_row: int = None,
+            field_definitions: list = None,
+            delimiter: str = None,
     ):
         self._validate(file_type, field_name, start_position, field_length, position_in_row)
         self.file_type = file_type
@@ -32,7 +36,9 @@ class FieldDefinition:
         self.start_position = start_position
         self.field_length = field_length
         self.position_in_row = position_in_row
+        self.field_definitions = field_definitions if field_definitions else []
         self.xml_node_name = xml_node_name if xml_node_name else field_name
+        self.delimiter = delimiter
 
     @classmethod
     def create_from_dict(cls, file_type, field_definition: dict):
@@ -70,15 +76,15 @@ class FileDefinition:
     file_mask: str = field(default="")
 
     def __init__(
-        self,
-        file_type,
-        field_definitions,
-        has_header=False,
-        delimiter="",
-        record_xml_element="",
-        input_directory="",
-        completed_directory="",
-        file_mask="",
+            self,
+            file_type,
+            field_definitions,
+            has_header=False,
+            delimiter="",
+            record_xml_element="",
+            input_directory="",
+            completed_directory="",
+            file_mask="",
     ):
         self._validate(file_type, field_definitions, delimiter, record_xml_element)
         self.file_type = file_type

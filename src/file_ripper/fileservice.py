@@ -1,3 +1,4 @@
+import abc
 from typing import IO
 from xml.etree.ElementTree import fromstring
 
@@ -6,7 +7,7 @@ from file_ripper.filedefinition import FileDefinition
 from file_ripper.fileinstance import FileInstance, FileRow
 
 
-class FileService:
+class FileService(abc.ABC):
     def __init__(self, file_definition):
         self.file_definition = file_definition
 
@@ -29,7 +30,16 @@ class XmlFileService(FileService):
         for item in tree.findall(f"./{self.file_definition.record_xml_element}"):
             record = {}
             for field_def in self.file_definition.field_definitions:
-                record[field_def.field_name] = item.find(f"{field_def.field_name}").text
+                if not field_def.field_definitions:
+                    record[field_def.field_name] = item.find(f"{field_def.field_name}").text
+                else:
+                    inner_record = {}
+                    for inner_def in field_def.field_definitions:
+                        inner_record[inner_def.field_name] = (item
+                                                              .find(field_def.field_name)
+                                                              .find(inner_def.field_name)
+                                                              .text)
+                    record[field_def.field_name] = inner_record
             file_rows.append(FileRow(record))
 
         return file_rows
@@ -57,13 +67,17 @@ class FlatFileService(FileService):
 
     def process_delimited_line(self, line):
         fields = [field.rstrip() for field in line.split(self.file_definition.delimiter)]
+
         record = {}
-
-        field_count = len(self.file_definition.field_definitions)
-
-        for i in range(0, field_count):
-            field_def = self.file_definition.field_definitions[i]
-            record[field_def.field_name] = fields[field_def.position_in_row]
+        for field_def in self.file_definition.field_definitions:
+            if not field_def.delimiter:
+                record[field_def.field_name] = fields[field_def.position_in_row]
+            else:
+                inner_fields = [field.strip() for field in fields[field_def.position_in_row].split(field_def.delimiter)]
+                inner_record = {}
+                for inner_def in field_def.field_definitions:
+                    inner_record[inner_def.field_name] = inner_fields[inner_def.position_in_row]
+                record[field_def.field_name] = inner_record
 
         return FileRow(record)
 
