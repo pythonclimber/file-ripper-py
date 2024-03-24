@@ -45,7 +45,7 @@ class XmlFileService(FileService):
         return file_rows
 
 
-class FlatFileService(FileService):
+class FlatFileService(FileService, abc.ABC):
     def __init__(self, file_definition: FileDefinition):
         super().__init__(file_definition)
 
@@ -56,17 +56,17 @@ class FlatFileService(FileService):
             lines.pop(0)
 
         for line in lines:
-            record = (
-                self.process_delimited_line(line)
-                if self.file_definition.file_type == fc.DELIMITED
-                else self.process_fixed_line(line)
-            )
-            records.append(record)
+            records.append(self.process_record(line))
 
         return records
 
-    def process_delimited_line(self, line):
-        fields = [field.rstrip() for field in line.split(self.file_definition.delimiter)]
+    def process_record(self, record_text):
+        raise NotImplementedError("Please use a valid implementation of FileService to read files")
+
+
+class DelimitedFileService(FlatFileService):
+    def process_record(self, record_text):
+        fields = [field.rstrip() for field in record_text.split(self.file_definition.delimiter)]
 
         record = {}
         for field_def in self.file_definition.field_definitions:
@@ -81,13 +81,15 @@ class FlatFileService(FileService):
 
         return FileRow(record)
 
-    def process_fixed_line(self, line):
+
+class FixedWidthFileService(FlatFileService):
+    def process_record(self, record_text):
         record = {}
         for field_def in self.file_definition.field_definitions:
             end_position = field_def.start_position + field_def.field_length
-            if end_position > len(line.rstrip()):
+            if end_position > len(record_text.rstrip()):
                 raise IndexError(f"field {field_def.field_name} extends past the end of line")
-            record[field_def.field_name] = line[field_def.start_position : end_position].rstrip().lstrip()
+            record[field_def.field_name] = record_text[field_def.start_position: end_position].rstrip().lstrip()
         return FileRow(record)
 
 
@@ -95,8 +97,8 @@ def create_file_service(file_definition):
     if file_definition.file_type == fc.XML:
         return XmlFileService(file_definition)
     elif file_definition.file_type == fc.DELIMITED:
-        return FlatFileService(file_definition)
+        return DelimitedFileService(file_definition)
     elif file_definition.file_type == fc.FIXED:
-        return FlatFileService(file_definition)
+        return FixedWidthFileService(file_definition)
     else:
         raise ValueError(f"file_definition is configured for unsupported file_type: {file_definition.file_type}")

@@ -100,7 +100,7 @@ class DelimitedFileServiceTests(FileServiceTests):
     def setUp(self):
         super().create_file_definitions(fc.DELIMITED)
         self.file_definition = FileDefinition(fc.DELIMITED, self.field_definitions, True, '|')
-        self.file_service = FlatFileService(self.file_definition)
+        self.file_service = create_file_service(self.file_definition)
         self.file_name = 'Valid-delimited-09032019.txt'
         with open(self.file_name, 'w') as f:
             f.write('Name|DOB|Age\n')
@@ -119,7 +119,7 @@ class DelimitedFileServiceNestedObjectTests(NestedObjectTests):
     def setUp(self):
         super().create_file_definitions(fc.DELIMITED)
         self.file_definition = FileDefinition(fc.DELIMITED, self.field_definitions, True, '|')
-        self.file_service = FlatFileService(self.file_definition)
+        self.file_service = create_file_service(self.file_definition)
         self.file_name = 'Valid-delimited-09032019.txt'
 
         self.file_definition.field_definitions.append(
@@ -177,7 +177,7 @@ class XmlFileServiceTests(FileServiceTests):
     def setUp(self):
         super(XmlFileServiceTests, self).create_file_definitions(fc.XML)
         self.file_definition = FileDefinition(fc.XML, self.field_definitions, record_xml_element='person')
-        self.file_service = XmlFileService(self.file_definition)
+        self.file_service = create_file_service(self.file_definition)
         self.file_name = 'Valid-xml-09032019.txt'
         with open(self.file_name, 'w') as f:
             self.file = f
@@ -211,7 +211,7 @@ class XmlFileServiceNestedObjectTests(NestedObjectTests):
     def setUp(self):
         super(XmlFileServiceNestedObjectTests, self).create_file_definitions(fc.XML)
         self.file_definition = FileDefinition(fc.XML, self.field_definitions, record_xml_element='person')
-        self.file_service = XmlFileService(self.file_definition)
+        self.file_service = create_file_service(self.file_definition)
         self.file_name = 'Valid-xml-09032019.txt'
 
         self.file_definition.field_definitions.append(
