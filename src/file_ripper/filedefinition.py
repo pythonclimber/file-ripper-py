@@ -16,7 +16,7 @@ class FieldDefinition:
     field_length: int
     xml_node_name: str
     position_in_row: int
-    field_definitions: list
+    field_definitions: List['FieldDefinition']
     delimiter: str
 
     def __init__(
@@ -27,7 +27,7 @@ class FieldDefinition:
             field_length: int = None,
             xml_node_name: str = "",
             position_in_row: int = None,
-            field_definitions: list = None,
+            field_definitions: List['FieldDefinition'] = None,
             delimiter: str = None,
     ):
         self._validate(file_type, field_name, start_position, field_length, position_in_row)

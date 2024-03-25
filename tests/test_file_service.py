@@ -249,3 +249,14 @@ class XmlFileServiceNestedObjectTests(NestedObjectTests):
         with open(self.file_name, 'r') as file:
             file_instance = self.file_service.process(file)
             self.assert_valid_file_output(file_instance.file_name, file_instance.file_rows)
+
+
+class FlatFileServiceTests(FileServiceTests):
+    def setUp(self) -> None:
+        self.create_file_definitions(fc.DELIMITED)
+
+    def test_process_record(self):
+        file_definition = FileDefinition(fc.DELIMITED, self.field_definitions, delimiter='&')
+        self.file_service = FlatFileService(file_definition)
+        self.assertRaises(NotImplementedError, self.file_service.process_record, '')
+
